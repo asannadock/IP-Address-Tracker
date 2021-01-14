@@ -33,6 +33,8 @@ body {
     flex-direction: column;
     align-items: center;
     position: relative;
+    /* Using z-index=401 (or more) because the Leaflet map has z-index=400 */
+    z-index: 401;
 }
 
 /* typography */
@@ -132,8 +134,14 @@ button.search-submit:active {
 /* main */
 .main {
     background-color: turquoise;
-    flex-grow: 1;
+    /* flex-grow: 1; */
 }
+/* The map wrapper should have the exact height in order the Leaflet map to load (as per Leaflet documentation) */
+#map {
+    height: auto;
+    min-height: 600px;
+}
+
 
 @media (min-width: 767px) {
     h1 {
