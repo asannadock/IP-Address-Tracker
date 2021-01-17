@@ -23,8 +23,7 @@ tiles.addTo(map)
 // Creating a custom marker
 var myIcon = L.icon({
     iconUrl: 'images/icon-location.svg',
-    iconSize: [40, 50],
-    iconAnchor: [22, 94]
+    iconSize: [40, 50]
 });
 // Setting up the marker, first in the [0, 0] coordinates.
 //Later we'll change the marker to point out the actual coordinates when we get them from IPify API 
@@ -49,7 +48,7 @@ getIPData()
         const latitude = `${outputData.location.lat}`
         const longintude = `${outputData.location.lng}`
         marker.setLatLng([latitude, longintude])
-        // Zooming in the marker position and moving it to the center of the map
+        // Changing the map view so that to have the marker oriented in the center with a bit more zoom
         map.setView([latitude, longintude], 5)
     })
     .catch( err => console.error )
