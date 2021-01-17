@@ -1,17 +1,55 @@
-// I. Setting up the Leaflet map
+// I. Setting up variables to store output data
+const outputIpAddress = document.querySelector('.output-ip-address-value')
+const outputLocation = document.querySelector('.output-location-value')
+const outputTimezone = document.querySelector('.output-timezone-value')
+const outputIsp = document.querySelector('.output-isp-value')
 
-// We are able to call any function on the map because we loaded the Leaflet library (as a script in the html file head). And we call functions by saying 'L.functionFromLibrary'
+// II. Setting up the Leaflet map
+// We are able to call any function on the map because we loaded the Leaflet library (as a script in the html file head). And we call functions by saying 'L.functionFromLibrary'. So, any function or method called in this script, which has a 'L.' before refer to the Leaflet library.
 
-// First we need to initialize the map and set its view to our chosen geographical coordinates (latitude and logitude) and zoom level. Coordinates and zoom here are the settings for what the map should show when it first loads. In this case we use "0, 0" for the coordinates and "1" for the zoom level, which means there is no zoom.
+// First we need to initialize the map and set its view to our chosen geographical coordinates (latitude and logitude) and zoom level. Coordinates and zoom here are the settings for what the map should show when it first loads. In this case we use "0, 0" for the coordinates and "2" for the zoom level.
 const map = L.map('map').setView([0, 0], 2)
 
-// Second we need create a tile layer. For that we should specify the tiles - the images of the map itself. This is how all this type of maps work, they take any part of the map that you want to show and load a bunch of tiles simultaniously, tile them together and show that map as you're zooming in out and moving around. Leaflet allows to use any tiles providers, such as Mapbox, Stamen, Thunderforest, OpenStreetMap. The OpenStreetMap does not require a token or key, therefor we use it in this example.
+// Second we need to create a tile layer. For that we should specify the tiles - the images of the map itself. This is how all this type of maps work, they take any part of the map that you want to show and load a bunch of tiles simultaniously, tile them together and show that map as you're zooming in out and moving around. Leaflet allows to use any tiles providers, such as Mapbox, Stamen, Thunderforest, OpenStreetMap. The OpenStreetMap does not require a token or key, therefor we use it in this example.
 // 1. Here we use tiles from Open Street Map. We are required (by the OpenStreetMap's copyright notice) to use the attribution
 const attribution = 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-// 2. Now we can create tiles variable, which actually is the tile layer. The variable requires tileUrl and the attribution (we use curly brackets arround the attribution because it's expecting it in the form of an object).
+// 2. Now we can create tiles variable, which actually is the tile layer (const tiles). The variable requires tileUrl and the attribution (we use curly brackets arround the attribution because it's expecting it in the form of an object). In the tileUrl: s - for style, x and y - for latitude and longitude, z - for zoom.
 const tileUrl = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
 const tiles = L.tileLayer(tileUrl, {attribution})
 // 3. Now we can add the tiles to the map
 tiles.addTo(map)
 
-// II. 
+// III. Setting up a marker with custom icon
+// Creating a custom marker
+var myIcon = L.icon({
+    iconUrl: 'images/icon-location.svg',
+    iconSize: [40, 50],
+    iconAnchor: [22, 94]
+});
+// Setting up the marker, first in the [0, 0] coordinates.
+//Later we'll change the marker to point out the actual coordinates when we get them from IPify API 
+const marker = L.marker([0,0], {icon: myIcon}).addTo(map)
+
+
+// IV. Getting IP Geolocation data using IPify
+const api_url = 'https://geo.ipify.org/api/v1?apiKey=at_8ks8dZy4pvWdDB9Gm2syN3zUJNnw7&ipAddress='
+async function getIPData() {
+    const response = await fetch(api_url)
+    const outputData = await response.json()
+    return outputData    
+}
+
+getIPData()
+    .then( outputData => {
+        outputIpAddress.textContent = `${outputData.ip}`
+        outputLocation.textContent = `${outputData.location.city}, ${outputData.location.region} ${outputData.location.postalCode}`
+        outputTimezone.textContent = `UTC${outputData.location.timezone}`
+        outputIsp.textContent = `${outputData.isp}`
+        // Changing marker position to point out the actual coordinates
+        const latitude = `${outputData.location.lat}`
+        const longintude = `${outputData.location.lng}`
+        marker.setLatLng([latitude, longintude])
+        // Zooming in the marker position and moving it to the center of the map
+        map.setView([latitude, longintude], 5)
+    })
+    .catch( err => console.error )
