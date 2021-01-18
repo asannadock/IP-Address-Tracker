@@ -1,10 +1,16 @@
-// I. Setting up variables to store output data
+// I. Declairing variables
+// To store output data
 const outputIpAddress = document.querySelector('.output-ip-address-value')
 const outputLocation = document.querySelector('.output-location-value')
 const outputTimezone = document.querySelector('.output-timezone-value')
 const outputIsp = document.querySelector('.output-isp-value')
+// To get search input data
+const searchInput = document.getElementById('search-input')
+const searchSubmit = document.getElementById('search-submit')
+// Global variable for storing IP address
+let ip = ''
 
-// II. Setting up the Leaflet map
+// II. Displaying Leaflet map
 // We are able to call any function on the map because we loaded the Leaflet library (as a script in the html file head). And we call functions by saying 'L.functionFromLibrary'. So, any function or method called in this script, which has a 'L.' before refer to the Leaflet library.
 
 // First we need to initialize the map and set its view to our chosen geographical coordinates (latitude and logitude) and zoom level. Coordinates and zoom here are the settings for what the map should show when it first loads. In this case we use "0, 0" for the coordinates and "2" for the zoom level.
@@ -30,25 +36,39 @@ var myIcon = L.icon({
 const marker = L.marker([0,0], {icon: myIcon}).addTo(map)
 
 
-// IV. Getting IP Geolocation data using IPify
-const api_url = 'https://geo.ipify.org/api/v1?apiKey=at_8ks8dZy4pvWdDB9Gm2syN3zUJNnw7&ipAddress='
-async function getIPData() {
+// IV. Function to getting IP Geolocation data using IPify
+async function getOutputData() {
+    const api_url = `https://geo.ipify.org/api/v1?apiKey=at_8ks8dZy4pvWdDB9Gm2syN3zUJNnw7&ipAddress=${ip}`
     const response = await fetch(api_url)
     const outputData = await response.json()
     return outputData    
 }
 
-getIPData()
-    .then( outputData => {
-        outputIpAddress.textContent = `${outputData.ip}`
-        outputLocation.textContent = `${outputData.location.city}, ${outputData.location.region} ${outputData.location.postalCode}`
-        outputTimezone.textContent = `UTC${outputData.location.timezone}`
-        outputIsp.textContent = `${outputData.isp}`
-        // Changing marker position to point out the actual coordinates
-        const latitude = `${outputData.location.lat}`
-        const longintude = `${outputData.location.lng}`
-        marker.setLatLng([latitude, longintude])
-        // Changing the map view so that to have the marker oriented in the center with a bit more zoom
-        map.setView([latitude, longintude], 5)
-    })
+// V. Function to displaying IP Geolocation data
+function displayOutputData(outputData) {
+    outputIpAddress.textContent = `${outputData.ip}`
+    outputLocation.textContent = `${outputData.location.city}, ${outputData.location.region} ${outputData.location.postalCode}`
+    outputTimezone.textContent = `UTC${outputData.location.timezone}`
+    outputIsp.textContent = `${outputData.isp}`
+    // Changing marker position to point out the actual coordinates
+    const latitude = `${outputData.location.lat}`
+    const longintude = `${outputData.location.lng}`
+    marker.setLatLng([latitude, longintude])
+    // Changing the map view so that to have the marker oriented in the center with a bit more zoom
+    map.setView([latitude, longintude], 5)
+}
+
+// Chaining functions for showing IP Geolocation data on the page
+getOutputData()
+    .then( outputData => displayOutputData(outputData) )
     .catch( err => console.error )
+
+// Getting submitted IP address Geolocation data and displaying it on the page
+searchSubmit.addEventListener('click', event => {
+    event.preventDefault()
+    ip = searchInput.value
+    getOutputData(ip)
+        .then( outputData => displayOutputData(outputData) )
+        .catch( err => console.error )
+    searchInput.value = ''
+})

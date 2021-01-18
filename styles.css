@@ -103,6 +103,7 @@ button.search-submit:focus,
 button.search-submit:active {
     background-color: var(--very-dark-gray);
     cursor: pointer;
+    outline: none;
 }
 
 /* output data */
