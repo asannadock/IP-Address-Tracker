@@ -4,9 +4,10 @@ const outputIpAddress = document.querySelector('.output-ip-address-value')
 const outputLocation = document.querySelector('.output-location-value')
 const outputTimezone = document.querySelector('.output-timezone-value')
 const outputIsp = document.querySelector('.output-isp-value')
-// To get search input data
+// To store search input data
 const searchInput = document.getElementById('search-input')
 const searchSubmit = document.getElementById('search-submit')
+const errorMessage = document.getElementById('error')
 // Global variable for storing IP address
 let ip = ''
 
@@ -26,13 +27,13 @@ const tiles = L.tileLayer(tileUrl, {attribution})
 tiles.addTo(map)
 
 // III. Setting up a marker with custom icon
-// Creating a custom marker
-var myIcon = L.icon({
+// Creating a custom icon for the marker
+const myIcon = L.icon({
     iconUrl: 'images/icon-location.svg',
     iconSize: [40, 50]
 });
 // Setting up the marker, first in the [0, 0] coordinates.
-//Later we'll change the marker to point out the actual coordinates when we get them from IPify API 
+//Later we'll change the marker position to point out the actual coordinates when we get them from IPify API 
 const marker = L.marker([0,0], {icon: myIcon}).addTo(map)
 
 
@@ -41,34 +42,62 @@ async function getOutputData() {
     const api_url = `https://geo.ipify.org/api/v1?apiKey=at_8ks8dZy4pvWdDB9Gm2syN3zUJNnw7&ipAddress=${ip}`
     const response = await fetch(api_url)
     const outputData = await response.json()
-    return outputData    
+    return outputData
 }
 
 // V. Function to displaying IP Geolocation data
 function displayOutputData(outputData) {
-    outputIpAddress.textContent = `${outputData.ip}`
+    outputIpAddress.textContent = outputData.ip
     outputLocation.textContent = `${outputData.location.city}, ${outputData.location.region} ${outputData.location.postalCode}`
     outputTimezone.textContent = `UTC${outputData.location.timezone}`
-    outputIsp.textContent = `${outputData.isp}`
-    // Changing marker position to point out the actual coordinates
+    outputIsp.textContent = outputData.isp
+    // Changing marker position to point out the actual coordinates (latitude and longitude)
     const latitude = `${outputData.location.lat}`
     const longintude = `${outputData.location.lng}`
     marker.setLatLng([latitude, longintude])
-    // Changing the map view so that to have the marker oriented in the center with a bit more zoom
+    // Changing the map view so that to have the marker oriented in the center of the screen and with a bit more zoom
     map.setView([latitude, longintude], 5)
 }
 
-// Chaining functions for showing IP Geolocation data on the page
+// VI. Function to clearing IP Geolocation data
+function clearOutputData() {
+    outputIpAddress.textContent = ''
+    outputLocation.textContent = ''
+    outputTimezone.textContent = ''
+    outputIsp.textContent = ''
+    marker.remove(map)
+}
+
+// Chaining functions for showing IP Geolocation data on the page on the first load
 getOutputData()
     .then( outputData => displayOutputData(outputData) )
     .catch( err => console.error )
 
 // Getting submitted IP address Geolocation data and displaying it on the page
-searchSubmit.addEventListener('click', event => {
+function searchIpAddress(event) {
     event.preventDefault()
     ip = searchInput.value
     getOutputData(ip)
-        .then( outputData => displayOutputData(outputData) )
+        .then( outputData => {
+            if (outputData.ip == undefined) {
+                clearOutputData()
+                errorMessage.style.visibility = 'visible'
+            } else {
+                errorMessage.style.visibility = 'hidden'
+                displayOutputData(outputData)
+                marker.addTo(map)
+                searchInput.value = ''
+            }
+        })
         .catch( err => console.error )
-    searchInput.value = ''
+}
+// Submitting IP Address on click event
+searchSubmit.addEventListener('click', event => {
+    searchIpAddress(event)
+})
+// Submitting IP Address on 'Enter' key press
+searchSubmit.addEventListener('keyup', event => {
+    if(keyCode === 13) {
+        searchIpAddress(event)
+    }
 })

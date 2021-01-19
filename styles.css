@@ -78,8 +78,9 @@ input[type="search"] {
 /* search */
 .search {
     width: 100%;
-    margin: 10px 0 24px 0;
+    margin: 10px 0;
     display: flex;
+    flex-wrap: wrap;
 }
 .search input[type="search"] {
     height: 60px;
@@ -104,6 +105,13 @@ button.search-submit:active {
     background-color: var(--very-dark-gray);
     cursor: pointer;
     outline: none;
+}
+.search .error {
+    flex: 0 0 100%;
+    font-size: .9rem;
+    font-weight: 500;
+    color: red;
+    margin: 10px 0 0 10px;
 }
 
 /* output data */
