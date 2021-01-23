@@ -1,8 +1,8 @@
 # IP Address Tracker
 
-Challenge by [Frontend Mentor](https://www.frontendmentor.io).
+Challenge by [Frontend Mentor](https://www.frontendmentor.io) (design provided).
 
-https://asannadock.github.io/IP-Address-Tracker/
+## 📡 [IP Address Tracker App](https://asannadock.github.io/IP-Address-Tracker/)
 
 IP Address Tracker app that let users to see their own IP Address on the map on the initial page load and search for any IP addresses and see the key information on the page.
 
