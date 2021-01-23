@@ -1,6 +1,6 @@
 # IP Address Tracker
 
-Challenge by Frontend Mentor](https://www.frontendmentor.io).
+Challenge by [Frontend Mentor](https://www.frontendmentor.io).
 
 https://asannadock.github.io/IP-Address-Tracker/
 
